@@ -1,0 +1,92 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qbittorrent.fullname" . }}
+  labels:
+    app: {{ include "qbittorrent.name" . }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ include "qbittorrent.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "qbittorrent.name" . }}
+    spec:
+      containers:
+        # ----------------------------
+        # 1. qBittorrent Container
+        # ----------------------------
+        - name: qbittorrent
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.service.port }}
+              name: web
+            - containerPort: {{ .Values.service.bittorrentPort }}
+              name: bittorrent
+          env:
+            - name: PUID
+              value: "{{ .Values.env.PUID }}"
+            - name: PGID
+              value: "{{ .Values.env.PGID }}"
+            - name: UMASK
+              value: "{{ .Values.env.UMASK }}"
+            - name: TZ
+              value: "{{ .Values.env.TZ }}"
+          volumeMounts:
+            {{- if .Values.persistence.config.enabled }}
+            - mountPath: /config
+              name: config
+            {{- end }}
+            {{- if .Values.persistence.downloads.enabled }}
+            - mountPath: /downloads
+              name: downloads
+            {{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        
+        # ----------------------------
+        # 2. Qui Frontend Sidecar
+        # ----------------------------
+        {{- if .Values.qui.enabled }}
+        - name: qui
+          image: "{{ .Values.qui.image.repository }}:{{ .Values.qui.image.tag }}"
+          imagePullPolicy: {{ .Values.qui.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.qui.port }}
+              name: qui-web
+          {{- if .Values.persistence.config.enabled }}
+          volumeMounts:
+            - mountPath: /config
+              name: config
+              subPath: qui
+          {{- end }}
+          env:
+            {{- if and .Values.qui .Values.qui.oidc .Values.qui.oidc.enabled }}
+            - name: QUI__OIDC_ENABLED
+              value: "true"
+            - name: QUI__OIDC_ISSUER
+              value: {{ .Values.qui.oidc.issuer | quote }}
+            - name: QUI__OIDC_CLIENT_ID
+              value: {{ .Values.qui.oidc.clientId | quote }}
+            - name: QUI__OIDC_CLIENT_SECRET
+              value: {{ .Values.qui.oidc.clientSecret | quote }}
+            - name: QUI__OIDC_REDIRECT_URL
+              value: {{ .Values.qui.oidc.redirectUrl | quote }}
+            - name: QUI__OIDC_DISABLE_BUILT_IN_LOGIN
+              value: {{ .Values.qui.oidc.disableBuiltInLogin | quote }}
+            {{- end }}
+        {{- end }}
+      volumes:
+        {{- if .Values.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.config.existingClaim | default (printf "%s-config-pvc" (include "qbittorrent.fullname" .)) }}
+        {{- end }}
+        {{- if .Values.persistence.downloads.enabled }}
+        - name: downloads
+          persistentVolumeClaim:
+            claimName: {{ .Values.persistence.downloads.existingClaim | default (printf "%s-downloads-pvc" (include "qbittorrent.fullname" .)) }}
+        {{- end }}

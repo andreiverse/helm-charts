@@ -1,0 +1,41 @@
+name: Publish Helm Chart
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'charts/**'
+      - '.github/workflows/helm-publish.yml'
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+
+jobs:
+  publish-helm:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Helm
+        uses: azure/setup-helm@v4
+        with:
+          version: v3.14.0
+
+      - name: Log in to GHCR
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | helm registry login ${{ env.REGISTRY }} -u ${{ github.actor }} --password-stdin
+
+      - name: Package Helm Chart
+        run: |
+          helm package charts/qbittorrent --destination ./dist
+
+      - name: Push Helm Chart to GHCR (OCI)
+        run: |
+          CHART_PACKAGE=$(ls ./dist/*.tgz)
+          OWNER_LC=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
+          helm push $CHART_PACKAGE oci://${{ env.REGISTRY }}/$OWNER_LC/charts

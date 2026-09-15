@@ -1,0 +1,56 @@
+replicaCount: 1
+
+image:
+  repository: lscr.io/linuxserver/qbittorrent 
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  type: NodePort
+  port: 8080
+  bittorrentPort: 6881
+
+qui:
+  enabled: true
+  image:
+    repository: ghcr.io/autobrr/qui
+    tag: latest
+    pullPolicy: IfNotPresent
+  port: 7476
+  oidc:
+    enabled: false
+    issuer: ""
+    clientId: ""
+    clientSecret: ""
+    redirectUrl: ""
+    disableBuiltInLogin: "false"
+
+persistence:
+  config:
+    enabled: true
+    existingClaim: ""
+    size: 1Gi
+    storageClass: "local-path"
+    accessMode: ReadWriteOnce
+    hostPath: "" 
+  downloads:
+    enabled: true
+    existingClaim: ""
+    size: 100Gi
+    storageClass: "local-path"
+    accessMode: ReadWriteOnce
+    hostPath: "" 
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi
+  limits:
+    cpu: 500m
+    memory: 1Gi
+
+env:
+  PUID: "568"
+  PGID: "568"
+  UMASK: "002"
+  TZ: UTC

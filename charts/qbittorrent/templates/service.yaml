@@ -1,0 +1,30 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qbittorrent.fullname" . }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: {{ .Values.service.port }}
+      name: web
+    - port: {{ .Values.service.bittorrentPort }}
+      targetPort: {{ .Values.service.bittorrentPort }}
+      name: bittorrent
+  selector:
+    app: {{ include "qbittorrent.name" . }}
+---
+{{- if .Values.qui.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "qbittorrent.fullname" . }}-qui
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.qui.port }}
+      targetPort: {{ .Values.qui.port }}
+      name: qui-web
+  selector:
+    app: {{ include "qbittorrent.name" . }}
+{{- end }}
