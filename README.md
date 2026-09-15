@@ -37,3 +37,5 @@ affinity:
 1. login with the temporary password from qbittorrent pod
 2. disable localhost auth
 3. add the instance to qui as localhost:8080 with no auth
+
+for oidc, use the following redirect url format: `https://{domain}/api/auth/oidc/callback`
