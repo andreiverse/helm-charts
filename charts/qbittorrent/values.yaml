@@ -25,6 +25,8 @@ qui:
     redirectUrl: ""
     disableBuiltInLogin: "false"
 
+affinity: {}
+
 persistence:
   config:
     enabled: true

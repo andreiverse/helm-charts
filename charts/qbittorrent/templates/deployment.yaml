@@ -5,6 +5,7 @@ metadata:
   labels:
     app: {{ include "qbittorrent.name" . }}
 spec:
+
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
@@ -14,6 +15,10 @@ spec:
       labels:
         app: {{ include "qbittorrent.name" . }}
     spec:
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
         # ----------------------------
         # 1. qBittorrent Container

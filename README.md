@@ -18,6 +18,20 @@ persistence:
     hostPath: /mnt/hdd01/qbittorrent/downloads
 ```
 
+make sure to set affinitty if using host path:
+
+```yaml
+affinity:
+  nodeAffinity:
+    requiredDuringSchedulingIgnoredDuringExecution:
+      nodeSelectorTerms:
+        - matchExpressions:
+            - key: kubernetes.io/hostname
+              operator: In
+              values:
+                - server.andrei.lan
+```
+
 #### post install qui
 
 1. login with the temporary password from qbittorrent pod
