@@ -1,0 +1,58 @@
+{{- if .Values.sonarr.enabled -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "arr.fullname" . }}-sonarr
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-sonarr
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "arr.name" . }}-sonarr
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "arr.name" . }}-sonarr
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      containers:
+        - name: sonarr
+          image: "{{ .Values.sonarr.image.repository }}:{{ .Values.sonarr.image.tag }}"
+          imagePullPolicy: {{ .Values.sonarr.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.sonarr.service.port }}
+              protocol: TCP
+          env:
+            - name: TZ
+              value: {{ .Values.global.timezone | quote }}
+            - name: PUID
+              value: {{ .Values.global.puid | quote }}
+            - name: PGID
+              value: {{ .Values.global.pgid | quote }}
+          volumeMounts:
+            {{- if .Values.sonarr.persistence.config.enabled }}
+            - name: config
+              mountPath: /config
+            {{- end }}
+            {{- if .Values.sonarr.persistence.media.enabled }}
+            - name: media
+              mountPath: /media
+            {{- end }}
+      volumes:
+        {{- if .Values.sonarr.persistence.config.enabled }}
+        - name: config
+          persistentVolumeClaim:
+            claimName: {{ include "arr.fullname" . }}-sonarr-config
+        {{- end }}
+        {{- if .Values.sonarr.persistence.media.enabled }}
+        - name: media
+          persistentVolumeClaim:
+            claimName: {{ include "arr.fullname" . }}-sonarr-media
+        {{- end }}
+{{- end -}}

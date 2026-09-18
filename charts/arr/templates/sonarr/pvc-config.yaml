@@ -1,0 +1,27 @@
+{{- if and .Values.sonarr.enabled .Values.sonarr.persistence.config.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "arr.fullname" . }}-sonarr-config
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-sonarr
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes:
+    - {{ .Values.sonarr.persistence.config.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.sonarr.persistence.config.size }}
+  {{- if .Values.sonarr.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.sonarr.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.sonarr.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.sonarr.persistence.config.hostPath }}
+  volumeName: {{ include "arr.fullname" . }}-sonarr-config
+  {{- end }}
+{{- end -}}

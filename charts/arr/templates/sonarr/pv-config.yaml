@@ -1,0 +1,29 @@
+{{- if and .Values.sonarr.enabled .Values.sonarr.persistence.config.enabled .Values.sonarr.persistence.config.hostPath -}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "arr.fullname" . }}-sonarr-config
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-sonarr
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  capacity:
+    storage: {{ .Values.sonarr.persistence.config.size }}
+  accessModes:
+    - {{ .Values.sonarr.persistence.config.accessMode }}
+  hostPath:
+    path: {{ .Values.sonarr.persistence.config.hostPath }}
+    type: DirectoryOrCreate
+  {{- if .Values.sonarr.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.sonarr.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.sonarr.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+  claimRef:
+    name: {{ include "arr.fullname" . }}-sonarr-config
+    namespace: {{ .Release.Namespace }}
+{{- end -}}

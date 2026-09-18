@@ -1,0 +1,29 @@
+global:
+  timezone: UTC
+  puid: "1000"
+  pgid: "1000"
+
+sonarr:
+  enabled: false
+  image:
+    repository: lscr.io/linuxserver/sonarr
+    pullPolicy: IfNotPresent
+    tag: latest
+  
+  persistence:
+    config:
+      enabled: true
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      hostPath: ""
+    media:
+      enabled: true
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 10Gi
+      hostPath: ""
+  
+  service:
+    type: ClusterIP
+    port: 8989
