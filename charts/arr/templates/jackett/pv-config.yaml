@@ -1,0 +1,29 @@
+{{- if and .Values.jackett.enabled .Values.jackett.persistence.config.enabled .Values.jackett.persistence.config.hostPath -}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "arr.fullname" . }}-jackett-config
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-jackett
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  capacity:
+    storage: {{ .Values.jackett.persistence.config.size }}
+  accessModes:
+    - {{ .Values.jackett.persistence.config.accessMode }}
+  hostPath:
+    path: {{ .Values.jackett.persistence.config.hostPath }}
+    type: DirectoryOrCreate
+  {{- if .Values.jackett.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.jackett.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.jackett.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+  claimRef:
+    name: {{ include "arr.fullname" . }}-jackett-config
+    namespace: {{ .Release.Namespace }}
+{{- end -}}

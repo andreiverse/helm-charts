@@ -1,0 +1,27 @@
+{{- if and .Values.jackett.enabled .Values.jackett.persistence.config.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "arr.fullname" . }}-jackett-config
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-jackett
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes:
+    - {{ .Values.jackett.persistence.config.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.jackett.persistence.config.size }}
+  {{- if .Values.jackett.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.jackett.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.jackett.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.jackett.persistence.config.hostPath }}
+  volumeName: {{ include "arr.fullname" . }}-jackett-config
+  {{- end }}
+{{- end -}}

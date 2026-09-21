@@ -1,0 +1,21 @@
+{{- if .Values.jackett.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "arr.fullname" . }}-jackett
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-jackett
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.jackett.service.type }}
+  ports:
+    - port: {{ .Values.jackett.service.port }}
+      targetPort: http
+      protocol: TCP
+      name: http
+  selector:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-jackett
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end -}}

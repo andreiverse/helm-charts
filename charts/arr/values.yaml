@@ -28,3 +28,22 @@ sonarr:
   service:
     type: ClusterIP
     port: 8989
+
+jackett:
+  enabled: false
+  image:
+    repository: lscr.io/linuxserver/jackett
+    pullPolicy: IfNotPresent
+    tag: latest
+  
+  persistence:
+    config:
+      enabled: true
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      hostPath: ""
+  
+  service:
+    type: ClusterIP
+    port: 9117
