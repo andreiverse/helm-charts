@@ -6,16 +6,16 @@ this helm chart has qui and qbittorrent, refer to the default `values.yaml` file
 
 ```yaml
 persistence:
-    config:
-    enabled: true
-    size: 1Gi
-    accessMode: ReadWriteOnce
-    hostPath: /mnt/hdd01/qbittorrent/config
-    downloads:
-    enabled: true
-    size: 100Gi
-    accessMode: ReadWriteMany
-    hostPath: /mnt/hdd01/qbittorrent/downloads
+  config:
+  enabled: true
+  size: 1Gi
+  accessMode: ReadWriteOnce
+  hostPath: /mnt/hdd01/qbittorrent/config
+downloads:
+  enabled: true
+  size: 100Gi
+  accessMode: ReadWriteMany
+  hostPath: /mnt/hdd01/qbittorrent/downloads
 ```
 
 make sure to set affinitty if using host path:

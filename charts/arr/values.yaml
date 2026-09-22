@@ -18,12 +18,10 @@ sonarr:
       accessMode: ReadWriteOnce
       size: 1Gi
       hostPath: ""
-    media:
-      enabled: true
-      storageClass: ""
-      accessMode: ReadWriteOnce
-      size: 10Gi
-      hostPath: ""
+    mounts:
+      - name: media
+        pvcName: existing-media-pvc
+        mountPath: /media
   
   service:
     type: ClusterIP
