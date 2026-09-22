@@ -1,0 +1,29 @@
+{{- if and .Values.radarr.enabled .Values.radarr.persistence.config.enabled .Values.radarr.persistence.config.hostPath -}}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: {{ include "arr.fullname" . }}-radarr-config
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-radarr
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  capacity:
+    storage: {{ .Values.radarr.persistence.config.size }}
+  accessModes:
+    - {{ .Values.radarr.persistence.config.accessMode }}
+  hostPath:
+    path: {{ .Values.radarr.persistence.config.hostPath }}
+    type: DirectoryOrCreate
+  {{- if .Values.radarr.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.radarr.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.radarr.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+  claimRef:
+    name: {{ include "arr.fullname" . }}-radarr-config
+    namespace: {{ .Release.Namespace }}
+{{- end -}}

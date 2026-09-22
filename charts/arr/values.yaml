@@ -27,6 +27,29 @@ sonarr:
     type: ClusterIP
     port: 8989
 
+radarr:
+  enabled: false
+  image:
+    repository: lscr.io/linuxserver/radarr
+    pullPolicy: IfNotPresent
+    tag: latest
+  
+  persistence:
+    config:
+      enabled: true
+      storageClass: ""
+      accessMode: ReadWriteOnce
+      size: 1Gi
+      hostPath: ""
+    mounts:
+      - name: media
+        pvcName: existing-media-pvc
+        mountPath: /media
+  
+  service:
+    type: ClusterIP
+    port: 7878
+
 jackett:
   enabled: false
   image:

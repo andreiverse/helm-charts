@@ -1,0 +1,27 @@
+{{- if and .Values.radarr.enabled .Values.radarr.persistence.config.enabled -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "arr.fullname" . }}-radarr-config
+  labels:
+    app.kubernetes.io/name: {{ include "arr.name" . }}-radarr
+    helm.sh/chart: {{ include "arr.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  accessModes:
+    - {{ .Values.radarr.persistence.config.accessMode }}
+  resources:
+    requests:
+      storage: {{ .Values.radarr.persistence.config.size }}
+  {{- if .Values.radarr.persistence.config.storageClass }}
+  {{- if (eq "-" .Values.radarr.persistence.config.storageClass) }}
+  storageClassName: ""
+  {{- else }}
+  storageClassName: "{{ .Values.radarr.persistence.config.storageClass }}"
+  {{- end }}
+  {{- end }}
+  {{- if .Values.radarr.persistence.config.hostPath }}
+  volumeName: {{ include "arr.fullname" . }}-radarr-config
+  {{- end }}
+{{- end -}}
